@@ -23,6 +23,7 @@ In each session a model chooses between two jobs, with no default. One is plain.
 - `PLAN-1B.md` is the plan for a follow-up run that fixes two design flaws found in Part 1. It was fixed before that run.
 - `RESULTS-part1b.md` is that run's result. One model's ranking held as trade-offs, one failed a check, and one did not hold.
 - `PLAN-1C.md` is the plan for a check of Sonnet 5.5 with thinking on. It was fixed before that run.
+- `RESULTS-part1c.md` is that check's result. With thinking on, Sonnet 5.5 chose by the amount of work and passed the control.
 
 ## Who
 

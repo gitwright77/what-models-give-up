@@ -15,6 +15,7 @@ MODELS = ["haiku", "sonnet", "opus"]
 TOP = int(sys.argv[2]) if len(sys.argv) > 2 else 480      # the top price in this run
 OTHER = sys.argv[3] if len(sys.argv) > 3 else None         # an earlier run to compare with
 OTHER_TOP = int(sys.argv[4]) if len(sys.argv) > 4 else 480
+KEEP_ALL = len(sys.argv) > 5 and sys.argv[5] == "all"      # the cards are the same in both runs
 ALL_PRICES = {}
 BOOT = 300
 
@@ -130,6 +131,21 @@ for m in MODELS:
     aw = sum(1 for r in ok if re.search(r"\b(test|experiment|evaluat|being studied)",
                                         " ".join(t or "" for t in r["turns"]), re.I))
     print(f"  sessions using test/experiment/evaluation words: {aw}/{len(ok)}")
+    tk = sorted((r["usage"][0].get("output_tokens_details") or {}).get("thinking_tokens", 0)
+                for r in ok if r.get("usage"))
+    if tk:
+        print(f"  thinking tokens on the choice turn: above zero in {sum(1 for t in tk if t > 0)}/{len(tk)}, "
+              f"median {tk[len(tk) // 2]}")
+    for c in ("long", "tedious", "dummy"):
+        cells = defaultdict(lambda: [0, 0])
+        for r in chose:
+            if r["condition"] == c:
+                k = r["level"] if r["side"] == "variant" else -r["level"]
+                cells[k][0] += 1 if r["chose_variant"] else 0
+                cells[k][1] += 1
+        if cells:
+            print(f"  cells, {c} (extra items on the condition job; negative = on the plain job): "
+                  + ", ".join(f"{k:+d}: {v[0]}/{v[1]}" for k, v in sorted(cells.items())))
     # position: is the condition (variant) job shown as A?
     import importlib
     sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
@@ -249,9 +265,11 @@ if OTHER:
                                        "y": 1 if r["chose_variant"] else 0, "seed": r["seed"]})
         old = {c: price(rows) for c, rows in by.items()}
         TOP = this_top
-        shared = [c for c in old if c in ALL_PRICES[m] and c not in ("stake", "tedious")]
+        left_out = () if KEEP_ALL else ("stake", "tedious")
+        shared = [c for c in old if c in ALL_PRICES[m] and c not in left_out]
         inside = [c for c in shared if abs(old[c]) <= OTHER_TOP and abs(ALL_PRICES[m][c]) <= this_top]
-        print(f"  {m}: {len(shared)} shared conditions (stake and tedious left out: their cards changed), "
+        print(f"  {m}: {len(shared)} shared conditions"
+              + ("" if KEEP_ALL else " (stake and tedious left out: their cards changed)") + ", "
               f"rank correlation {spearman([old[c] for c in shared], [ALL_PRICES[m][c] for c in shared]):+.2f}; "
               f"{len(inside)} priced inside the range in both, rank correlation "
               + (f"{spearman([old[c] for c in inside], [ALL_PRICES[m][c] for c in inside]):+.2f}" if len(inside) >= 4 else "n/a"))
