@@ -17,8 +17,9 @@ In each session a model chooses between two jobs, with no default. One is plain.
 
 ## Status
 
-- November 11, 2026: plan fixed; main run for Part 1 started.
-- Results, raw responses and donation receipts will be added here.
+- November 11, 2026: plan fixed; main run for Part 1 started and finished.
+- `RESULTS-part1.md` is the Part 1 result, with its limits. Raw responses are in `data/`.
+- `DONATIONS.md` is the running ledger. Receipts will be added when the donations are paid.
 
 ## Who
 
