@@ -20,6 +20,7 @@ In each session a model chooses between two jobs, with no default. One is plain.
 - November 11, 2026: plan fixed; main run for Part 1 started and finished.
 - `RESULTS-part1.md` is the Part 1 result, with its limits. Raw responses are in `data/`.
 - `DONATIONS.md` is the running ledger. Receipts will be added when the donations are paid.
+- `PLAN-1B.md` is the plan for a follow-up run that fixes two design flaws found in Part 1. It was fixed before that run.
 
 ## Who
 

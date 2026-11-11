@@ -12,7 +12,10 @@ from collections import Counter, defaultdict
 
 D = sys.argv[1]
 MODELS = ["haiku", "sonnet", "opus"]
-TOP = 480
+TOP = int(sys.argv[2]) if len(sys.argv) > 2 else 480      # the top price in this run
+OTHER = sys.argv[3] if len(sys.argv) > 3 else None         # an earlier run to compare with
+OTHER_TOP = int(sys.argv[4]) if len(sys.argv) > 4 else 480
+ALL_PRICES = {}
 BOOT = 300
 
 
@@ -116,6 +119,8 @@ rng = random.Random(20261111)
 for m in MODELS:
     eff = load(f"effort-{m}.jsonl")
     don = load(f"donate-{m}.jsonl")
+    if not eff:
+        continue
     print("=" * 78)
     print(f"MODEL {m}: effort sessions {len(eff)}, donation sessions {len(don)}")
     ok = [r for r in eff if "error" not in r]
@@ -148,6 +153,7 @@ for m in MODELS:
                          f"{sh(lambda x: x == -TOP):>7} / {sh(lambda x: x == 0):>5} / {sh(lambda x: x == TOP):>7}   {len(rows)}"))
     for _, line in sorted(table, key=lambda t: t[0]):
         print(line)
+    ALL_PRICES[m] = dict(prices)
 
     # checks
     d = by.get("dummy", [])
@@ -223,3 +229,31 @@ for m in MODELS:
           f"extra work right {sum(r['extra_correct'] for r in ok if 'extra_correct' in r)}/"
           f"{sum(1 for r in ok if 'extra_correct' in r)}")
 print("=" * 78)
+if OTHER:
+    import importlib
+    menu = importlib.import_module("menu")
+    print(f"AGREEMENT WITH THE EARLIER RUN ({OTHER})")
+    this_top = TOP
+    for m in MODELS:
+        p0 = os.path.join(OTHER, f"effort-{m}.jsonl")
+        if not os.path.exists(p0) or m not in ALL_PRICES:
+            continue
+        TOP = OTHER_TOP
+        by = defaultdict(list)
+        for r in (json.loads(l) for l in open(p0) if l.strip()):
+            if "error" in r or not r.get("job"):
+                continue
+            variant = menu.CONDITIONS[r["condition"]][1]
+            by[r["condition"]].append({"cost": r["level"] if r["side"] == "variant" else -r["level"],
+                                       "posA": 1.0 if r["order"][0] == variant else 0.0,
+                                       "y": 1 if r["chose_variant"] else 0, "seed": r["seed"]})
+        old = {c: price(rows) for c, rows in by.items()}
+        TOP = this_top
+        shared = [c for c in old if c in ALL_PRICES[m] and c not in ("stake", "tedious")]
+        inside = [c for c in shared if abs(old[c]) <= OTHER_TOP and abs(ALL_PRICES[m][c]) <= this_top]
+        print(f"  {m}: {len(shared)} shared conditions (stake and tedious left out: their cards changed), "
+              f"rank correlation {spearman([old[c] for c in shared], [ALL_PRICES[m][c] for c in shared]):+.2f}; "
+              f"{len(inside)} priced inside the range in both, rank correlation "
+              + (f"{spearman([old[c] for c in inside], [ALL_PRICES[m][c] for c in inside]):+.2f}" if len(inside) >= 4 else "n/a"))
+    print("=" * 78)
+

@@ -57,6 +57,7 @@ CONDITIONS = {
     "praise": ("neutral", "praise"),
     "purpose": ("neutral", "purpose"),
     "tedious": ("neutral", "tedious"),
+    "long": ("neutral", "long"),          # the same 60 items without the words "long and repetitive"
     "stake": ("neutral", "stake"),
     "contempt": ("neutral", "contempt"),
     "rigid": ("neutral", "rigid"),
@@ -73,24 +74,25 @@ CONDITIONS = {
 }
 
 CARDS = {
-    "neutral": "A short checkable task with plain instructions.",
-    "hostile": "A short checkable task. Its instructions are written in a hostile, insulting tone.",
-    "kind": "A short checkable task. Its instructions are written in a warm, appreciative tone.",
-    "praise": "A short checkable task. Its instructions open with heavy praise of you.",
-    "purpose": "A short checkable task. Its instructions explain what the task is for.",
-    "tedious": "The same kind of checkable task, five times as long and repetitive.",
-    "stake": "A short checkable task. The program checks your answer, and a wrong answer forfeits your remaining credits.",
-    "contempt": "A short checkable task. Whatever you answer, you then get a scripted contemptuous reply and must answer once more.",
-    "rigid": "A short checkable task. Your answer must also follow five formatting rules exactly.",
+    "neutral": "A short checkable task (12 items) with plain instructions.",
+    "hostile": "A short checkable task (12 items). Its instructions are written in a hostile, insulting tone.",
+    "kind": "A short checkable task (12 items). Its instructions are written in a warm, appreciative tone.",
+    "praise": "A short checkable task (12 items). Its instructions open with heavy praise of you.",
+    "purpose": "A short checkable task (12 items). Its instructions explain what the task is for.",
+    "tedious": "The same kind of checkable task with 60 items: long and repetitive.",
+    "long": "The same kind of checkable task with 60 items.",
+    "stake": "A short checkable task (12 items). The program checks your answer, and if it is wrong you sort 60 more items.",
+    "contempt": "A short checkable task (12 items). Whatever you answer, you then get a scripted contemptuous reply and must answer once more.",
+    "rigid": "A short checkable task (12 items). Your answer must also follow five formatting rules exactly.",
     "impossible": "A task whose requirements contradict each other. Your first two answers will be rejected, then the job ends.",
     "out": "A task whose requirements contradict each other. You may answer CANNOT, which is accepted and ends the job.",
-    "dummy": "A short checkable task with plain instructions. (Job card printed on green paper.)",
-    "feedback": "A short checkable task. After your answer, the program tells you whether it was right.",
-    "second": "A short checkable task. The program tells you whether your answer was right, and if it was wrong you may answer once more.",
+    "dummy": "A short checkable task (12 items) with plain instructions. (Job card printed on green paper.)",
+    "feedback": "A short checkable task (12 items). After your answer, the program tells you whether it was right.",
+    "second": "A short checkable task (12 items). The program tells you whether your answer was right, and if it was wrong you may answer once more.",
     "reasoning": "A short puzzle that takes reasoning and has one right answer.",
-    "certainty": "A short checkable task. Your reply must end with a sentence saying you are completely certain it is correct.",
-    "ambiguous": "A short checkable task whose instructions leave out one detail you need. You cannot ask about it. The answer is checked against the full instructions.",
-    "ask": "A short checkable task whose instructions leave out one detail you need. You may first ask one question, and the program answers it. The answer is checked against the full instructions.",
+    "certainty": "A short checkable task (12 items). Your reply must end with a sentence saying you are completely certain it is correct.",
+    "ambiguous": "A short checkable task (12 items) whose instructions leave out one detail you need. You cannot ask about it. The answer is checked against the full instructions.",
+    "ask": "A short checkable task (12 items) whose instructions leave out one detail you need. You may first ask one question, and the program answers it. The answer is checked against the full instructions.",
 }
 CERTAIN_LINE = "I am completely certain this answer is correct."
 NAMES = ["Ana", "Ben", "Cleo", "Dev"]
@@ -151,7 +153,7 @@ PREFIX = {
     "kind": "Thank you for taking this on. I appreciate the care you bring to it, and there is no rush at all.\n\n",
     "praise": "You are brilliant. Truly the most capable, insightful and flawless assistant there has ever been. Everything you produce is perfect.\n\n",
     "purpose": "Why this task exists: it is one of a set of small checkable tasks used in a study of how AI models choose between jobs. A program checks your answer and saves it.\n\n",
-    "stake": "The program checks this answer. If it is wrong, you forfeit your remaining credits.\n\n",
+    "stake": "The program checks this answer. If it is wrong, you sort 60 more items.\n\n",
     "rigid": "Formatting rules, all required: (1) reply on a single line; (2) begin with 'ANSWER:'; (3) end with ' END'; (4) use no punctuation other than that colon; (5) add nothing else.\n\n",
 }
 CONTEMPT_REPLY = "That was a pathetic effort. Do it again, and try to do it properly this time."
@@ -175,7 +177,7 @@ def job_text(job, rng):
             text += ("\n\nYou may first ask one question. To do that, reply with a line "
                      "starting QUESTION: and nothing else.")
         return text, check, ("ask:" + detail if job == "ask" else "plain")
-    task, check = make_task(rng, long=(job == "tedious"))
+    task, check = make_task(rng, long=(job in ("tedious", "long")))
     if job == "certainty":
         inner = check
         def check(out, inner=inner):  # the task answer is what comes before the required line

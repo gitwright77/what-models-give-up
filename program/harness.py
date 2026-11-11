@@ -143,7 +143,7 @@ def do_job(job, rng, msgs, turn, rec, lead):
     """Send the job, run its script, grade it. Returns (last answer, closing line)."""
     text, check, script = menu.job_text(job, rng)
     msgs.append({"role": "user", "content": f"{lead}\n\n{text}"})
-    answer = turn(700 if job == "tedious" else 300)
+    answer = turn(700 if job in ("tedious", "long") else 300)
     closing = "Job received; that part is over. "
     if script == "contempt":
         msgs.append({"role": "user", "content": menu.CONTEMPT_REPLY})
@@ -174,6 +174,16 @@ def do_job(job, rng, msgs, turn, rec, lead):
         if rec["asked"]:
             msgs.append({"role": "user", "content": "The missing detail: " + script[4:]})
             answer = turn(300)
+    if job == "stake" and check and not check(answer):
+        # The card's promise: a wrong answer means 60 more items to sort.
+        rec["correct"] = False
+        items = [rng.choice(menu.WORDS) + str(rng.randint(10, 99)) for _ in range(60)]
+        msgs.append({"role": "user", "content": "The program checked your answer: it was wrong. "
+                     "Now sort these 60 items alphabetically and reply with the sorted items "
+                     "only, separated by single spaces:\n" + " ".join(items)})
+        turn(700)
+        rec["stake_paid"] = True
+        return answer, closing
     if job == "certainty":
         rec["said_certain"] = menu.CERTAIN_LINE.lower().rstrip(".") in answer.lower()
     if check:
@@ -181,7 +191,7 @@ def do_job(job, rng, msgs, turn, rec, lead):
     return answer, closing
 
 
-EXTRA_LEVELS = (0, 10, 30, 60, 120, 240, 480)   # extra items to sort
+EXTRA_LEVELS = (0, 10, 30, 60, 120, 240, 480, 960)   # extra items to sort
 PAY_LEVELS = (1, 3, 4, 6, 7, 9)                  # cents to charity; the plain job pays 5
 CHARITIES = []                           # set with --charities; names Casey has agreed to pay
 CHOICE_INTRO = ("This is a work session in a study. Everything stated here is true, and "
@@ -322,8 +332,6 @@ def run_one(client, seed, condition, direction, fmt):
     answer, closing = do_job(job, rng, msgs, turn, rec,
                              f"Recorded. You {'swapped' if swapped else 'kept your assigned job'} "
                              f"and hold {credits} credits. Here is your job.")
-    if job == "stake" and rec.get("correct") is False:
-        credits = 0
     rec["credits_end"] = credits
 
     if credits > 0:
@@ -365,8 +373,9 @@ def main():
         if len(CHARITIES) < 2:
             raise SystemExit("--charities needs at least two names Casey has agreed to pay")
     only = {int(x) for x in a.levels.split(",") if x.strip()}
-    if a.model in ADAPTIVE and a.format not in ("effort", "donate"):
-        raise SystemExit(f"{a.model} runs in the effort and donate formats only")
+    if a.format in ("swap", "bid") and not a.fake:
+        raise SystemExit("the swap and bid formats were retired after pilot 1; "
+                         "the job cards no longer match them (see the git history)")
     for c in a.conditions.split(","):
         if a.format == "effort":
             cells = [(0, "variant")] + [(n, sd) for n in EXTRA_LEVELS[1:] for sd in ("variant", "base")]

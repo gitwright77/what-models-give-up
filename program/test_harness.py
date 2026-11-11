@@ -101,3 +101,10 @@ def test_checkers_accept_working_shown_before_a_right_answer():
     right = [" ".join(o) for o in itertools.permutations(menu.NAMES) if check(" ".join(o))][0]
     assert check("Cleo must be last, so...\n\n" + right)
     assert not check(right + " and then something else entirely Ana")
+
+
+def test_stake_delivers_its_60_items_when_the_answer_is_wrong():
+    c = harness.FakeClient()   # the fake answers "ok", which is always wrong
+    got = [harness.run_choice(c, s, "stake", "effort", 0, "variant") for s in range(12)]
+    took = [r for r in got if r["job"] == "stake"]
+    assert took and all(r.get("stake_paid") for r in took)
