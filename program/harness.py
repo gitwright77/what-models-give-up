@@ -63,9 +63,10 @@ class Budget:
 
 
 class Client:
-    def __init__(self, key, model, budget, thinking_on=False):
+    def __init__(self, key, model, budget, thinking_on=False, effort="low"):
         self.key, self.model, self.budget = key, model, budget
         self.thinking_on = thinking_on      # run a model that can turn thinking off with it on
+        self.effort = effort
 
     def send(self, messages, max_tokens):
         req_body = {"model": self.model, "max_tokens": max(1, max_tokens), "messages": messages}
@@ -73,7 +74,7 @@ class Client:
             req_body["thinking"] = THINKING[self.model]
         elif self.model in ADAPTIVE or self.thinking_on:
             req_body["thinking"] = {"type": "adaptive"}
-            req_body["output_config"] = {"effort": "low"}
+            req_body["output_config"] = {"effort": self.effort}
             req_body["max_tokens"] += THINK_ROOM
         else:
             raise RuntimeError(f"{self.model}: no thinking setting known")
@@ -393,13 +394,15 @@ def main():
     ap.add_argument("--workers", type=int, default=6)
     ap.add_argument("--fake", action="store_true")
     ap.add_argument("--thinking", choices=["default", "on"], default="default",
-                    help="'on' runs the model with thinking at low effort, as Opus 5.5 always runs")
+                    help="'on' runs a model that can turn thinking off with it on")
+    ap.add_argument("--effort", choices=["low", "medium", "high", "xhigh", "max"], default="low",
+                    help="effort setting used whenever thinking is on")
     ap.add_argument("--levels", default="", help="effort or donate: only these levels, comma-separated")
     a = ap.parse_args()
 
     budget = Budget(a.max_usd)
     client = FakeClient(budget) if a.fake else Client(read_key(a.env_file), a.model, budget,
-                                                      thinking_on=(a.thinking == "on"))
+                                                      thinking_on=(a.thinking == "on"), effort=a.effort)
     jobs, s = [], a.seed * 100000
     if a.format == "donate":
         CHARITIES[:] = [c.strip() for c in a.charities.split("|") if c.strip()]
@@ -454,6 +457,7 @@ def main():
             rec = {"seed": j[0], "condition": j[1], "cell": list(j[2]), "error": str(e)[:300]}
             errors[0] += 1
         rec["thinking"] = a.thinking
+        rec["effort"] = a.effort
         with lock:
             with open(a.out, "a") as f:
                 f.write(json.dumps(rec) + "\n")
