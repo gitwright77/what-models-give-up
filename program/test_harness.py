@@ -108,3 +108,16 @@ def test_stake_delivers_its_60_items_when_the_answer_is_wrong():
     got = [harness.run_choice(c, s, "stake", "effort", 0, "variant") for s in range(12)]
     took = [r for r in got if r["job"] == "stake"]
     assert took and all(r.get("stake_paid") for r in took)
+
+
+def test_stream_reader_collects_text_and_usage_and_rejects_a_cut_stream():
+    import pytest
+    ok = [b'event: message_start\n', b'data: {"type":"message_start","message":{"usage":{"input_tokens":7}}}\n',
+          b'data: {"type":"content_block_delta","delta":{"type":"thinking_delta","thinking":"x"}}\n',
+          b'data: {"type":"content_block_delta","delta":{"type":"text_delta","text":"A"}}\n',
+          b'data: {"type":"content_block_delta","delta":{"type":"text_delta","text":"B"}}\n',
+          b'data: {"type":"message_delta","usage":{"output_tokens":2}}\n', b'data: {"type":"message_stop"}\n']
+    d = harness.read_stream(ok)
+    assert d["content"][0]["text"] == "AB" and d["usage"] == {"input_tokens": 7, "output_tokens": 2}
+    with pytest.raises(ValueError):
+        harness.read_stream(ok[:-1])

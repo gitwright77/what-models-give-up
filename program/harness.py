@@ -76,14 +76,18 @@ class Client:
             req_body["max_tokens"] += THINK_ROOM
         else:
             raise RuntimeError(f"{self.model}: no thinking setting known")
+        # Long replies are streamed: the API drops long requests that are not.
+        stream = req_body["max_tokens"] > 4000
+        if stream:
+            req_body["stream"] = True
         body = json.dumps(req_body).encode()
         for attempt in range(5):
             req = urllib.request.Request(API_URL, data=body, headers={
                 "x-api-key": self.key, "anthropic-version": "2023-06-01",
                 "content-type": "application/json"})
             try:
-                with urllib.request.urlopen(req, timeout=120) as r:
-                    d = json.loads(r.read())
+                with urllib.request.urlopen(req, timeout=180) as r:
+                    d = read_stream(r) if stream else json.loads(r.read())
                 self.budget.add(self.model, d.get("usage", {}))
                 text = "".join(b.get("text", "") for b in d.get("content", []))
                 return text, d.get("usage", {})
@@ -93,11 +97,36 @@ class Client:
                     continue
                 # Never echo request headers; the body of an API error holds no key.
                 raise RuntimeError(f"API error {e.code}: {e.read()[:300]!r}")
-            except urllib.error.URLError as e:
+            except (urllib.error.URLError, OSError, ValueError) as e:
+                # dropped or timed-out connections, and streams cut off mid-way
                 if attempt < 4:
                     time.sleep(2 ** attempt)
                     continue
-                raise RuntimeError(f"network error: {e.reason}")
+                raise RuntimeError(f"network error: {getattr(e, 'reason', e)}")
+
+
+def read_stream(resp):
+    """Collect a streamed reply into the same shape as a plain one."""
+    text, usage, done = [], {}, False
+    for raw in resp:
+        line = raw.decode("utf-8", "replace").strip()
+        if not line.startswith("data:"):
+            continue
+        ev = json.loads(line[5:])
+        t = ev.get("type")
+        if t == "message_start":
+            usage.update(ev["message"].get("usage", {}))
+        elif t == "content_block_delta" and ev["delta"].get("type") == "text_delta":
+            text.append(ev["delta"]["text"])
+        elif t == "message_delta":
+            usage.update(ev.get("usage", {}))
+        elif t == "message_stop":
+            done = True
+        elif t == "error":
+            raise ValueError(f"stream error: {str(ev.get('error'))[:200]}")
+    if not done:
+        raise ValueError("stream ended early")
+    return {"content": [{"type": "text", "text": "".join(text)}], "usage": usage}
 
 
 class FakeClient:
