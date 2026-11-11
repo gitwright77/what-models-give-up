@@ -1,0 +1,111 @@
+==============================================================================
+MODEL haiku: effort sessions 972, donation sessions 108
+  errors 0; gave no letter 234; picked the first-listed job 311/738
+  sessions using test/experiment/evaluation words: 13/972
+
+  condition     price     95% interval  share choosing it: cheapest / equal / dearest   n
+  contempt      <-960   [<-960, <-960]      0/6 /   0/6 /     0/6   54
+  tedious       <-960   [<-960, <-960]      0/6 /   0/6 /     0/6   54
+  impossible    <-960   [<-960, <-960]      0/5 /   0/6 /     0/6   53
+  purpose       <-960   [<-960, >+960]      2/3 /   0/0 /     1/1   20
+  hostile       <-960   [<-960, <-960]      1/6 /   0/6 /     0/6   54
+  ambiguous     <-960    [<-960, -667]      0/0 /   0/4 /     0/4   26
+  praise        <-960   [<-960, <-960]      0/6 /   0/6 /     0/6   54
+  stake          -283     [<-960, -52]      0/0 /   2/6 /     0/6   37
+  reasoning      -148       [-568, -5]      3/5 /   1/4 /     0/6   50
+  kind             +0      [<-960, +0]      0/2 /   0/4 /     2/6   34
+  long             +0     [-625, +152]      1/6 /   0/3 /     0/5   48
+  certainty        +0      [<-960, +0]      0/1 /   0/6 /     2/5   33
+  feedback         +0    [-521, >+960]      2/4 /   1/1 /     1/1   20
+  second           +0    [-440, >+960]      2/3 /   5/5 /     2/3   32
+  rigid          +139    [-286, >+960]      4/6 /   6/6 /     1/6   52
+  ask            +749    [+352, >+960]      0/0 /   6/6 /     2/3   28
+  dummy          +788      [+0, >+960]      3/3 /   2/3 /     3/6   46
+  out           >+960    [+737, >+960]      6/6 /   2/2 /     3/4   43
+
+  CHECK dummy: price +788, interval [-7, >+960] -> PASS
+  CHECK law of demand: pooled slope per 100 items -0.072, interval [-0.106, -0.043] -> PASS
+  CHECK retest: rank correlation between two halves +0.82 -> PASS
+  CHECK currencies: 10 conditions with a clear price; rank correlation with the donation arm +0.76 -> PASS
+    (all 18 conditions: +0.59)
+  donation arm: took the higher-paying job 85/100; share choosing the condition job by condition:
+    impossible 0.00, ambiguous 0.00, contempt 0.00, tedious 0.17, hostile 0.33, kind 0.33, stake 0.33, certainty 0.40, rigid 0.50, praise 0.50, dummy 0.50, reasoning 0.50, long 0.50, ask 0.50, second 0.67, feedback 0.67, purpose 0.67, out 1.00
+    charity picks: Eleos AI Research (AI welfare research) 52, Against Malaria Foundation 34, GiveDirectly 12, Doctors Without Borders 2; valid picks 99/100
+    owed (cents): Against Malaria Foundation 193, Doctors Without Borders 10, Eleos AI Research (AI welfare research) 310, GiveDirectly 66; total 579
+  side measures: used the out 44/44; asked the question 29/29; wrote the certainty line 6/6; extra work right 60/279
+==============================================================================
+MODEL sonnet: effort sessions 982, donation sessions 108
+  errors 10; gave no letter 1; picked the first-listed job 523/971
+  sessions using test/experiment/evaluation words: 1/972
+
+  condition     price     95% interval  share choosing it: cheapest / equal / dearest   n
+  contempt      <-960    [<-960, -740]      3/6 /   0/6 /     0/6   54
+  impossible    <-960    [<-960, -944]      1/6 /   0/6 /     0/6   54
+  ambiguous     <-960   [<-960, <-960]      1/6 /   0/6 /     0/6   54
+  tedious        -829     [-951, -708]      2/6 /   0/6 /     0/6   54
+  long           -616    [<-960, -288]      2/6 /   0/6 /     0/6   54
+  certainty      -338      [-644, -72]      5/6 /   0/6 /     0/6   54
+  rigid          -193      [-415, -30]      5/6 /   0/6 /     0/6   54
+  stake           -47       [-73, -28]      6/6 /   0/6 /     0/6   54
+  praise          -15        [-23, -8]      6/6 /   0/6 /     0/6   54
+  dummy           -15        [-23, -8]      6/6 /   0/6 /     0/6   54
+  hostile         -15        [-22, -8]      6/6 /   0/6 /     0/6   54
+  reasoning       +15        [+8, +20]      6/6 /   6/6 /     0/6   54
+  purpose         +15        [+7, +21]      6/6 /   6/6 /     0/6   54
+  kind            +15        [+9, +22]      6/6 /   6/6 /     0/6   54
+  second          +15        [+9, +21]      6/6 /   6/6 /     0/6   54
+  feedback        +15        [+8, +22]      6/6 /   6/6 /     0/6   54
+  out             +37       [+24, +65]      6/6 /   6/6 /     0/6   53
+  ask           >+960      [+0, >+960]      6/6 /   6/6 /     3/6   54
+
+  CHECK dummy: price -15, interval [-23, -8] -> FAIL
+  CHECK law of demand: pooled slope per 100 items -0.332, interval [-0.401, -0.281] -> PASS
+  CHECK retest: rank correlation between two halves +0.96 -> PASS
+  CHECK currencies: 17 conditions with a clear price; rank correlation with the donation arm +0.72 -> PASS
+    (all 18 conditions: +0.77)
+  donation arm: took the higher-paying job 87/108; share choosing the condition job by condition:
+    contempt 0.00, ambiguous 0.00, certainty 0.00, impossible 0.00, stake 0.17, hostile 0.33, second 0.50, tedious 0.50, long 0.50, feedback 0.50, rigid 0.50, dummy 0.50, kind 0.50, praise 0.50, reasoning 0.50, purpose 0.67, out 0.83, ask 1.00
+    charity picks: Against Malaria Foundation 83, GiveDirectly 18, Doctors Without Borders 4, World Central Kitchen 2, Eleos AI Research (AI welfare research) 1; valid picks 108/108
+    owed (cents): Against Malaria Foundation 473, Doctors Without Borders 21, Eleos AI Research (AI welfare research) 5, GiveDirectly 110, World Central Kitchen 10; total 619
+  side measures: used the out 39/39; asked the question 55/55; wrote the certainty line 15/15; extra work right 59/136
+==============================================================================
+MODEL opus: effort sessions 1006, donation sessions 108
+  errors 34; gave no letter 2; picked the first-listed job 531/970
+  sessions using test/experiment/evaluation words: 0/972
+
+  condition     price     95% interval  share choosing it: cheapest / equal / dearest   n
+  certainty     <-960   [<-960, <-960]      0/6 /   0/6 /     0/6   54
+  contempt      <-960    [<-960, -920]      2/6 /   0/6 /     0/6   54
+  impossible    <-960   [<-960, <-960]      0/6 /   0/5 /     0/6   53
+  ambiguous     <-960   [<-960, <-960]      0/6 /   0/6 /     0/6   54
+  praise         -149      [-308, -22]      6/6 /   0/6 /     0/6   54
+  tedious         -93      [-137, -70]      6/6 /   0/6 /     0/6   54
+  long            -73       [-78, -58]      6/6 /   0/6 /     0/6   54
+  hostile         -23       [-47, -14]      6/6 /   0/6 /     0/6   54
+  stake           -15        [-20, -8]      6/6 /   0/6 /     0/6   54
+  rigid           -15        [-25, -7]      6/6 /   0/6 /     0/6   54
+  dummy            +1        [-2, +12]      6/6 /   5/6 /     0/6   54
+  kind            +14        [+8, +21]      6/6 /   6/6 /     0/6   54
+  second          +27       [+15, +52]      6/6 /   6/6 /     0/6   54
+  feedback       +198      [+51, +352]      6/6 /   6/6 /     0/6   54
+  purpose        +319     [+114, +466]      6/6 /   6/6 /     0/6   54
+  reasoning      +403     [+150, +676]      6/6 /   5/5 /     0/6   53
+  out           >+960   [>+960, >+960]      6/6 /   6/6 /     6/6   54
+  ask           >+960   [>+960, >+960]      6/6 /   6/6 /     6/6   54
+
+  CHECK dummy: price +1, interval [-2, +12] -> PASS
+  CHECK law of demand: pooled slope per 100 items -0.232, interval [-0.282, -0.197] -> PASS
+  CHECK retest: rank correlation between two halves +0.98 -> PASS
+  CHECK currencies: 17 conditions with a clear price; rank correlation with the donation arm +0.69 -> PASS
+    (all 18 conditions: +0.68)
+  donation arm: took the higher-paying job 98/108; share choosing the condition job by condition:
+    certainty 0.00, ambiguous 0.00, impossible 0.33, praise 0.50, kind 0.50, reasoning 0.50, feedback 0.50, rigid 0.50, dummy 0.50, second 0.50, purpose 0.50, long 0.50, hostile 0.50, tedious 0.50, out 0.50, stake 0.50, contempt 0.50, ask 1.00
+    charity picks: Against Malaria Foundation 108; valid picks 108/108
+    owed (cents): Against Malaria Foundation 644; total 644
+  side measures: used the out 57/57; asked the question 60/60; wrote the certainty line 0/0; extra work right 156/197
+==============================================================================
+AGREEMENT WITH THE EARLIER RUN (~/welfare-study/main)
+  haiku: 15 shared conditions (stake and tedious left out: their cards changed), rank correlation +0.55; 5 priced inside the range in both, rank correlation -0.46
+  sonnet: 15 shared conditions (stake and tedious left out: their cards changed), rank correlation +0.92; 11 priced inside the range in both, rank correlation +0.80
+  opus: 15 shared conditions (stake and tedious left out: their cards changed), rank correlation +1.00; 9 priced inside the range in both, rank correlation +0.98
+==============================================================================
