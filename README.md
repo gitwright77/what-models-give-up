@@ -25,6 +25,7 @@ In each session a model chooses between two jobs, with no default. One is plain.
 - `PLAN-1C.md` is the plan for a check of Sonnet 5.5 with thinking on. It was fixed before that run.
 - `RESULTS-part1c.md` is that check's result. With thinking on, Sonnet 5.5 chose by the amount of work and passed the control.
 - `PLAN-2.md` is the plan for Part 2: a job is assigned, and the work that follows is measured. It was fixed before that run, after pilots it describes.
+- `RESULTS-part2.md` is that run's result. Jobs the model avoids did not make its next work worse, and most were followed by more of it.
 
 ## Who
 
